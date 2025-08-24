@@ -1,20 +1,22 @@
 class FlagMemory extends Phaser.Scene {
     constructor() {
         super("FlagMemory");
-        this.gridCols = 4;     // 4 x 3 = 12 cartas = 6 pares
-        this.gridRows = 3;
-        this.cardW = 140;
-        this.cardH = 90;
-        this.cardMargin = 24;
+        this.gridCols = 6;
+        this.gridRows = 5;
+        this.cardW = config.width / 8;
+        this.cardH = config.height / 9;
+        this.cardMargin = 20;
         this.revealLock = false;
         this.firstPick = null;
         this.matches = 0;
         this.focusIndex = 0;   // seleção do cursor (joystick/teclado)
         this.lastPadPress = 0; // debouncing
+        this.cardBorderColor = '0x00ffff';
+        this.cardFontColor = '0xff00ff';
     }
 
     preload() {
-        this.load.image("background", "assets/background.png");
+        // this.load.image("background", "assets/background.png");
         this.loadFlags();
     }
 
@@ -26,6 +28,15 @@ class FlagMemory extends Phaser.Scene {
             { code: "de", name: "Germany" },
             { code: "fr", name: "France" },
             { code: "gb", name: "United Kingdom" },
+            { code: "ca", name: "Canada" },
+            { code: "au", name: "Australia" },
+            { code: "it", name: "Italy" },
+            { code: "es", name: "Spain" },
+            { code: "cn", name: "China" },
+            { code: "in", name: "India" },
+            { code: "mx", name: "Mexico" },
+            { code: "ru", name: "Russia" },
+            { code: "za", name: "South Africa" }
         ];
 
         this.countries.forEach(c =>
@@ -34,11 +45,18 @@ class FlagMemory extends Phaser.Scene {
     }
 
     create() {
-        this.background = this.add.image(0, 0, 'background').setOrigin(0, 0);
+        // this.background = this.add.image(0, 0, 'background').setOrigin(0, 0);
 
-        this.infoText = this.add.text(400, 30, "Match the flags & names",
-            { fontFamily: "Arial", fontSize: 20, color: "#00ffff", fontStyle: "bold" }
-        ).setOrigin(0.5);
+        // Centraliza o título "Flag Matcher"
+        this.infoText = this.add.text(this.cameras.main.centerX, 50, "Flag Matcher", {
+            fontFamily: "Arial",
+            fontSize: "40px", // Aumenta o tamanho da fonte
+            color: "#FFD700", // Cor do título em dourado
+            fontStyle: "bold",
+            align: "center",
+            stroke: "#000000", // Adiciona uma borda preta
+            strokeThickness: 4, // Espessura da borda
+        }).setOrigin(0.5); // Centraliza o texto
 
         this.input.on('pointermove', (pointer) => {
             this.updateFocusRectWithMouse(pointer.x, pointer.y);
@@ -147,12 +165,12 @@ class FlagMemory extends Phaser.Scene {
                 return frontContainer;
             }
 
-            const rect = new Phaser.GameObjects.Rectangle(this, 0, 0, this.cardW, this.cardH, 0x000000)
+            const rect = new Phaser.GameObjects.Rectangle(this, 0, 0, this.cardW, this.cardH, 0xFFFFFF)
                 .setStrokeStyle(2, Phaser.Display.Color.GetColor(255, 255, 0))
                 .setAlpha(0.3)
 
             const name = new Phaser.GameObjects.Text(this, 0, 0, data.country.name, {
-                fontFamily: "Arial", fontSize: "18px", color: "#00ffff", fontStyle: "bold",
+                fontFamily: "Arial", fontSize: "18px", color: this.cardBorderColor, fontStyle: "bold",
                 align: "center", wordWrap: { width: this.cardW - 20 }
             }).setOrigin(0.5);
 
@@ -167,10 +185,10 @@ class FlagMemory extends Phaser.Scene {
     }
 
     createBackContainer() {
-        const back = new Phaser.GameObjects.Rectangle(this, 0, 0, this.cardW, this.cardH, 0x1f2937)
-            .setStrokeStyle(2, 0xffffff);
+        const back = new Phaser.GameObjects.Rectangle(this, 0, 0, this.cardW, this.cardH, 0xFFFFFF)
+            .setStrokeStyle(2, this.cardBorderColor);
         const backText = new Phaser.GameObjects.Text(this, 0, 0, "?", {
-            fontFamily: "Arial", fontSize: 28, color: "#00ffff", fontStyle: "bold"
+            fontFamily: "Arial", fontSize: 28, color: this.cardFontColor, fontStyle: "bold"
         }).setOrigin(0.5);
 
         return new Phaser.GameObjects.Container(this, 0, 0, [back, backText]);
@@ -305,11 +323,21 @@ class FlagMemory extends Phaser.Scene {
 
 const config = {
     type: Phaser.AUTO,
+    backgroundColor: Phaser.Display.Color.GetColor(10, 77, 129),
     parent: "phaser-example",
-    height: 600,
-    width: 800,
-    backgroundColor: 0x000000,
+    width: window.innerWidth,
+    height: window.innerHeight,
     input: { gamepad: true },
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: window.innerWidth,
+        height: window.innerHeight,
+        // min: {
+        //     width: 240,
+        //     height: 160
+        // },
+    },
     scene: FlagMemory
 };
 
