@@ -34,13 +34,29 @@ class FlagMemory extends Phaser.Scene {
     }
 
     create() {
-        this.background = this.add.tileSprite(0, 0, 800, 600, 'background').setOrigin(0);
+        this.background = this.add.image(0, 0, 'background').setOrigin(0, 0);
 
         this.infoText = this.add.text(400, 30, "Match the flags & names",
             { fontFamily: "Arial", fontSize: 20, color: "#00ffff", fontStyle: "bold" }
         ).setOrigin(0.5);
 
+        this.input.on('pointermove', (pointer) => {
+            this.updateFocusRectWithMouse(pointer.x, pointer.y);
+        });
+
         this.createFlags();
+    }
+
+    updateFocusRectWithMouse(mouseX, mouseY) {
+        // Verifica se o mouse está sobre algum cartão
+        for (let i = 0; i < this.cards.length; i++) {
+            const card = this.cards[i];
+            if (card.getBounds().contains(mouseX, mouseY)) {
+                this.focusIndex = i; // Atualiza o índice de foco
+                this.focusRect.setPosition(card.x, card.y); // Atualiza a posição do retângulo de foco
+                break; // Sai do loop assim que encontrar um cartão
+            }
+        }
     }
 
     createFlags() {
@@ -54,8 +70,8 @@ class FlagMemory extends Phaser.Scene {
 
         const total = this.gridCols * this.gridRows;
         this.cards = [];
-        const startX = (800 - (this.gridCols * this.cardW + (this.gridCols - 1) * this.cardMargin)) / 2;
-        const startY = (600 - (this.gridRows * this.cardH + (this.gridRows - 1) * this.cardMargin)) / 2 + 20;
+        const startX = (config.width - (this.gridCols * this.cardW + (this.gridCols - 1) * this.cardMargin)) / 2;
+        const startY = (config.height - (this.gridRows * this.cardH + (this.gridRows - 1) * this.cardMargin)) / 2 + 20;
 
         for (let i = 0; i < total; i++) {
             const col = i % this.gridCols;
@@ -95,76 +111,87 @@ class FlagMemory extends Phaser.Scene {
         const container = this.add.container(data.x, data.y).setDepth(1);
         container.setSize(this.cardW, this.cardH);
         container.setInteractive(
-            new Phaser.Geom.Rectangle(-this.cardW / 2, -this.cardH / 2, this.cardW, this.cardH),
+            new Phaser.Geom.Rectangle(0, 0, this.cardW, this.cardH),
             Phaser.Geom.Rectangle.Contains
         );
 
-        // Frente
+        container.data = {
+            revealed: false,
+            matched: false,
+            payload: data,
+        };
+
+        const backContainer = this.createBackContainer();
+        container.add([backContainer]);
+
+        container.on("pointerdown", () => {
+            this.tryReveal(container);
+        });
+
+        return container;
+    }
+
+    createFrontContainer(data) {
         let frontContainer;
-        try{
+        try {
             if (data.kind === "flag") {
-                const img = new Phaser.GameObjects.Image(this, 0, 0 , data.frameKey)
+                const img = new Phaser.GameObjects.Image(this, 0, 0, data.frameKey)
                     .setDisplaySize(this.cardW, this.cardH);
 
-                const frame = new Phaser.GameObjects.Rectangle(this, 0, 0, this.cardW, this.cardH, 0xffffff)
-                    .setStrokeStyle(2, 0x111827)
-                    .setAlpha(0.9);
+                const frame = new Phaser.GameObjects.Rectangle(this, 0, 0, this.cardW, this.cardH, 0x000000)
+                    .setStrokeStyle(2, Phaser.Display.Color.GetColor(255, 255, 0))
+                    .setAlpha(0.3)
 
-                frontContainer = new Phaser.GameObjects.Container(this, data.x, data.y, [frame, img]);
+                frontContainer = new Phaser.GameObjects.Container(this, 0, 0, [frame, img]);
                 frontContainer.flagImage = img;
+                return frontContainer;
             }
-            else {
-                const rect = new Phaser.GameObjects.Rectangle(this, 0, 0, this.cardW, this.cardH, 0xfef3c7)
-                    .setStrokeStyle(2, 0x92400e);
 
-                const name = new Phaser.GameObjects.Text(this, 0, 0, data.country.name, {
-                    fontFamily: "Arial", fontSize: "18px", color: "#00ffff", fontStyle: "bold",
-                    align: "center", wordWrap: { width: this.cardW - 20 }
-                }).setOrigin(0.5);
+            const rect = new Phaser.GameObjects.Rectangle(this, 0, 0, this.cardW, this.cardH, 0x000000)
+                .setStrokeStyle(2, Phaser.Display.Color.GetColor(255, 255, 0))
+                .setAlpha(0.3)
 
-                frontContainer = new Phaser.GameObjects.Container(this, 0, 0, [rect, name]);
-            }
+            const name = new Phaser.GameObjects.Text(this, 0, 0, data.country.name, {
+                fontFamily: "Arial", fontSize: "18px", color: "#00ffff", fontStyle: "bold",
+                align: "center", wordWrap: { width: this.cardW - 20 }
+            }).setOrigin(0.5);
+
+            frontContainer = new Phaser.GameObjects.Container(this, 0, 0, [rect, name]);
+            frontContainer.flagImage = null;
+
         } catch (err) {
             console.error("Erro durante front:", err?.stack || err);
         }
 
-        // Verso
+        return frontContainer;
+    }
+
+    createBackContainer() {
         const back = new Phaser.GameObjects.Rectangle(this, 0, 0, this.cardW, this.cardH, 0x1f2937)
             .setStrokeStyle(2, 0xffffff);
         const backText = new Phaser.GameObjects.Text(this, 0, 0, "?", {
             fontFamily: "Arial", fontSize: 28, color: "#00ffff", fontStyle: "bold"
         }).setOrigin(0.5);
 
-        // Estado
-        const backContainer = new Phaser.GameObjects.Container(this, 0, 0, [back, backText]);
+        return new Phaser.GameObjects.Container(this, 0, 0, [back, backText]);
+    }
 
-        container.data = {
-            revealed: false,
-            matched: false,
-            payload: data,
-            front: frontContainer,
-            back: backContainer
-        };
-
-        container.add([backContainer]);
-
-        // container.on("pointerdown", () => this.tryReveal(container));
-
-        return container;
+    createCardContainer(toFront, card) {
+        return toFront
+            ? this.createFrontContainer(card.data.payload)
+            : this.createBackContainer();
     }
 
     async tryReveal(card) {
-        if (this.revealLock || card.data.matched || card.data.revealed) return;
-
-        this.revealLock = true;
-        try{
-            await this.flip(card, true);
-        } catch (err) {
-            console.error("Erro durante flip:", err?.stack || err);
+        if (this.revealLock || card.data.matched || card.data.revealed) {
+            return;
         }
 
+        this.revealLock = true;
+        await this.flip(card, true); // Revela o cartão
+
         if (!this.firstPick) {
-            this.firstPick = card;
+            this.firstPick = card; // Armazena o primeiro cartão
             this.revealLock = false;
             return;
         }
@@ -175,24 +202,22 @@ class FlagMemory extends Phaser.Scene {
         const isDifferentKinds = a.kind !== b.kind;
 
         if (isSameCountry && isDifferentKinds) {
-            this.firstPick.data.matched = true;
+            this.firstPick.data.matched = true; // Marca como pareado
             card.data.matched = true;
             this.matches += 1;
-            this.firstPick = null;
-            this.revealLock = false;
+            this.firstPick = null; // Reseta a primeira escolha
 
-            if (this.matches === this.countries.length) {
-                this.time.delayedCall(350, () => {
-                    this.infoText.setText("✔ Congratulations! Press ENTER or X to restart");
-                });
-            }
         } else {
             await this.delay(500);
-            await this.flip(this.firstPick, false);
-            await this.flip(card, false);
-            await this.delay(500);
-            this.firstPick = null;
-            this.revealLock = false;
+            await this.flip(this.firstPick, false); // Vira o primeiro cartão de volta
+            await this.flip(card, false); // Vira o segundo cartão de volta
+            this.firstPick = null; // Reseta a primeira escolha
+        }
+        this.revealLock = false; // Libera o bloqueio de revelação
+        if (this.matches === this.countries.length) {
+            this.time.delayedCall(350, () => {
+                this.infoText.setText("✔ Congratulations. You are the best!");
+            });
         }
     }
 
@@ -203,20 +228,10 @@ class FlagMemory extends Phaser.Scene {
                 scaleX: 0,
                 duration: 120,
                 onComplete: () => {
-                    card.removeAll(false);
-                    if (toFront) {
-                        card.data.front.x = 0;
-                        card.data.front.y = 0;
+                    card.removeAll(true); // Remove todos os filhos antes de adicionar o novo
 
-                        card.add(card.data.front);
-                        if (card.data.front.flagImage) {
-                            card.data.front.flagImage.setVisible(true);
-                        }
-                        card.data.revealed = true;
-                    } else {
-                        card.add(card.data.back);
-                        card.data.revealed = false;
-                    }
+                    card.data.revealed = toFront;
+                    card.add(this.createCardContainer(toFront, card));
                     card.scene.tweens.add({ targets: card, scaleX: 1, duration: 50, onComplete: resolve });
                 }
             });
@@ -236,15 +251,9 @@ class FlagMemory extends Phaser.Scene {
             if (moved) this.updateFocusRect();
 
             const pressA = (pad.A || (pad.buttons[0] && pad.buttons[0].pressed));
-            if (pressA && time - this.lastPadPress > 180) {
+            if (pressA && time - this.lastPadPress > 120) {
                 this.lastPadPress = time;
                 this.tryReveal(this.cards[this.focusIndex]);
-            }
-
-            const pressX = (pad.X || (pad.buttons[2] && pad.buttons[2].pressed));
-            if (pressX && time - this.lastPadPress > 300 && this.matches === this.countries.length) {
-                this.lastPadPress = time;
-                this.scene.restart();
             }
         }
 
@@ -297,8 +306,8 @@ class FlagMemory extends Phaser.Scene {
 const config = {
     type: Phaser.AUTO,
     parent: "phaser-example",
-    height: 600*2,
-    width: 800*2,
+    height: 600,
+    width: 800,
     backgroundColor: 0x000000,
     input: { gamepad: true },
     scene: FlagMemory
