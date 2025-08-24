@@ -1,11 +1,13 @@
 class FlagMemory extends Phaser.Scene {
     constructor() {
         super("FlagMemory");
-        this.gridCols = 6;
-        this.gridRows = 5;
-        this.cardW = config.width / 8;
-        this.cardH = config.height / 9;
-        this.cardMargin = 20;
+        this.gridCols = config.width > config.height ? 6 : 5;
+        this.gridRows = config.width > config.height ? 5 : 6;
+        this.titleYMargin = 100;
+        this.cardW = config.width / (this.gridCols + 1);
+        this.cardH = (config.height - this.titleYMargin) / (this.gridRows + 1);
+        this.cardXMargin = this.cardW/7;
+        this.cardYMargin = this.cardH/7;
         this.revealLock = false;
         this.firstPick = null;
         this.matches = 0;
@@ -88,14 +90,15 @@ class FlagMemory extends Phaser.Scene {
 
         const total = this.gridCols * this.gridRows;
         this.cards = [];
-        const startX = (config.width - (this.gridCols * this.cardW + (this.gridCols - 1) * this.cardMargin)) / 2;
-        const startY = (config.height - (this.gridRows * this.cardH + (this.gridRows - 1) * this.cardMargin)) / 2 + 20;
+
+        const startX = this.cardXMargin;
+        const startY = this.titleYMargin; // Margem superior para o título
 
         for (let i = 0; i < total; i++) {
             const col = i % this.gridCols;
             const row = Math.floor(i / this.gridCols);
-            const x = startX + col * (this.cardW + this.cardMargin) + this.cardW / 2;
-            const y = startY + row * (this.cardH + this.cardMargin) + this.cardH / 2;
+            const x = startX + col * (this.cardW + this.cardXMargin) + this.cardW / 2;
+            const y = startY + row * (this.cardH + this.cardYMargin) + this.cardH / 2;
 
             const data = cards[i];
             data.x = x;
@@ -324,7 +327,7 @@ class FlagMemory extends Phaser.Scene {
 const config = {
     type: Phaser.AUTO,
     backgroundColor: Phaser.Display.Color.GetColor(10, 77, 129),
-    parent: "phaser-example",
+    parent: "flag-matcher",
     width: window.innerWidth,
     height: window.innerHeight,
     input: { gamepad: true },
@@ -332,11 +335,7 @@ const config = {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
         width: window.innerWidth,
-        height: window.innerHeight,
-        // min: {
-        //     width: 240,
-        //     height: 160
-        // },
+        height: window.innerHeight
     },
     scene: FlagMemory
 };
