@@ -14,7 +14,7 @@ class FlagMemory extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image("background", "assets/background.png");
+        // this.load.image("background", "assets/background.png");
         this.loadFlags();
     }
 
@@ -34,11 +34,18 @@ class FlagMemory extends Phaser.Scene {
     }
 
     create() {
-        this.background = this.add.image(0, 0, 'background').setOrigin(0, 0);
+        // this.background = this.add.image(0, 0, 'background').setOrigin(0, 0);
 
-        this.infoText = this.add.text(400, 30, "Match the flags & names",
-            { fontFamily: "Arial", fontSize: 20, color: "#00ffff", fontStyle: "bold" }
-        ).setOrigin(0.5);
+        // Centraliza o título "Flag Matcher"
+        this.infoText = this.add.text(this.cameras.main.centerX, 50, "Flag Matcher", {
+            fontFamily: "Arial",
+            fontSize: "40px", // Aumenta o tamanho da fonte
+            color: "#00ffff",
+            fontStyle: "bold",
+            align: "center",
+            stroke: "#000000", // Adiciona uma borda preta
+            strokeThickness: 4, // Espessura da borda
+        }).setOrigin(0.5); // Centraliza o texto
 
         this.input.on('pointermove', (pointer) => {
             this.updateFocusRectWithMouse(pointer.x, pointer.y);
@@ -305,11 +312,26 @@ class FlagMemory extends Phaser.Scene {
 
 const config = {
     type: Phaser.AUTO,
+    backgroundColor: Phaser.Display.Color.GetColor(10, 77, 129),
     parent: "phaser-example",
-    height: 600,
-    width: 800,
-    backgroundColor: 0x000000,
+    width: window.innerWidth,
+    height: window.innerHeight,
     input: { gamepad: true },
+    scale: {
+        mode: Phaser.Scale.FIT,
+        parent: 'phaser-example',
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: window.innerWidth,
+        height: window.innerHeight,
+        // min: {
+        //     width: 240,
+        //     height: 160
+        // },
+        snap: {
+            width: 200,
+            height: 150
+        }
+    },
     scene: FlagMemory
 };
 
