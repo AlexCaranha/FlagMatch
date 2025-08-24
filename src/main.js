@@ -14,7 +14,7 @@ class FlagMemory extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image("background", "assets/lightblue.png");
+        this.load.image("background", "assets/background.png");
         this.loadFlags();
     }
 
@@ -34,7 +34,7 @@ class FlagMemory extends Phaser.Scene {
     }
 
     create() {
-        // this.background = this.add.tileSprite(0, 0, 800, 600, 'background').setOrigin(0);
+        this.background = this.add.tileSprite(0, 0, 800, 600, 'background').setOrigin(0);
 
         this.infoText = this.add.text(400, 30, "Match the flags & names",
             { fontFamily: "Arial", fontSize: 20, color: "#00ffff", fontStyle: "bold" }
@@ -101,27 +101,31 @@ class FlagMemory extends Phaser.Scene {
 
         // Frente
         let frontContainer;
-        if (data.kind === "flag") {
-            const img = new Phaser.GameObjects.Image(this, 0, 0 , data.frameKey)
-                .setDisplaySize(this.cardW, this.cardH);
+        try{
+            if (data.kind === "flag") {
+                const img = new Phaser.GameObjects.Image(this, 0, 0 , data.frameKey)
+                    .setDisplaySize(this.cardW, this.cardH);
 
-            const frame = new Phaser.GameObjects.Rectangle(this, 0, 0, this.cardW, this.cardH, 0xffffff)
-                .setStrokeStyle(2, 0x111827)
-                .setAlpha(0.9);
+                const frame = new Phaser.GameObjects.Rectangle(this, 0, 0, this.cardW, this.cardH, 0xffffff)
+                    .setStrokeStyle(2, 0x111827)
+                    .setAlpha(0.9);
 
-            frontContainer = this.add.container(data.x, data.y, [frame, img]);
-            frontContainer.flagImage = img;
-        }
-        else {
-            const rect = new Phaser.GameObjects.Rectangle(this, 0, 0, this.cardW, this.cardH, 0xfef3c7)
-                .setStrokeStyle(2, 0x92400e);
+                frontContainer = new Phaser.GameObjects.Container(this, data.x, data.y, [frame, img]);
+                frontContainer.flagImage = img;
+            }
+            else {
+                const rect = new Phaser.GameObjects.Rectangle(this, 0, 0, this.cardW, this.cardH, 0xfef3c7)
+                    .setStrokeStyle(2, 0x92400e);
 
-            const name = new Phaser.GameObjects.Text(this, 0, 0, data.country.name, {
-                fontFamily: "Arial", fontSize: "18px", color: "#00ffff", fontStyle: "bold",
-                align: "center", wordWrap: { width: this.cardW - 20 }
-            }).setOrigin(0.5);
+                const name = new Phaser.GameObjects.Text(this, 0, 0, data.country.name, {
+                    fontFamily: "Arial", fontSize: "18px", color: "#00ffff", fontStyle: "bold",
+                    align: "center", wordWrap: { width: this.cardW - 20 }
+                }).setOrigin(0.5);
 
-            frontContainer = this.add.container(data.x, data.y, [rect, name]);
+                frontContainer = new Phaser.GameObjects.Container(this, 0, 0, [rect, name]);
+            }
+        } catch (err) {
+            console.error("Erro durante front:", err?.stack || err);
         }
 
         // Verso
@@ -132,7 +136,7 @@ class FlagMemory extends Phaser.Scene {
         }).setOrigin(0.5);
 
         // Estado
-        const backContainer = this.add.container(0, 0, [back, backText]);
+        const backContainer = new Phaser.GameObjects.Container(this, 0, 0, [back, backText]);
 
         container.data = {
             revealed: false,
@@ -179,7 +183,7 @@ class FlagMemory extends Phaser.Scene {
 
             if (this.matches === this.countries.length) {
                 this.time.delayedCall(350, () => {
-                    this.infoText.setText("✔ Completed! Press ENTER or X to restart");
+                    this.infoText.setText("✔ Congratulations! Press ENTER or X to restart");
                 });
             }
         } else {
@@ -213,7 +217,7 @@ class FlagMemory extends Phaser.Scene {
                         card.add(card.data.back);
                         card.data.revealed = false;
                     }
-                    card.scene.tweens.add({ targets: card, scaleX: 1, duration: 100, onComplete: resolve });
+                    card.scene.tweens.add({ targets: card, scaleX: 1, duration: 50, onComplete: resolve });
                 }
             });
         });
@@ -293,8 +297,8 @@ class FlagMemory extends Phaser.Scene {
 const config = {
     type: Phaser.AUTO,
     parent: "phaser-example",
-    height: 600,
-    width: 800,
+    height: 600*2,
+    width: 800*2,
     backgroundColor: 0x000000,
     input: { gamepad: true },
     scene: FlagMemory
