@@ -1,5 +1,13 @@
 # FlagMatch
 
+Os links para encontrar as bandeiras são:
+
+https://flagcdn.com/80x60/br.png
+https://flagcdn.com/80x60/gb.png
+https://flagcdn.com/80x60/jp.png
+https://flagcdn.com/80x60/us.png
+https://flagcdn.com/80x60/de.png
+https://flagcdn.com/80x60/fr.png
 
 
 ## License
