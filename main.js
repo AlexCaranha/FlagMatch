@@ -57,6 +57,9 @@ class FlagMemoryScene extends Phaser.Scene {
     }
 
     create() {
+        this.revealedCards = [];
+        this.locked = true; // impede cliques até o "preview" acabar
+
         this.infoText = this.add.text(
             this.cameras.main.centerX,
             50,
@@ -147,6 +150,12 @@ class FlagMemoryScene extends Phaser.Scene {
 
             const card = this.buildCard(data);
             card.index = i;
+
+            // 🔹 Mostra todas como reveladas no início
+            card.removeAll(true);
+            card.data.revealed = true;
+            card.add(this.createFrontContainer(card.data.payload));
+
             this.cards.push(card);
         }
 
@@ -162,6 +171,12 @@ class FlagMemoryScene extends Phaser.Scene {
         this.cursors = this.input.keyboard.createCursorKeys();
         this.keyEnter = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
         this.keySpace = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+
+        // 🔹 Espera 4s e vira todas para trás, liberando o jogo
+        this.time.delayedCall(4000, async () => {
+            await Promise.all(this.cards.map(card => this.flip(card, false)));
+            this.locked = false; // agora o jogador pode jogar
+        });
     }
 
     makeFlagCardData(country) {
