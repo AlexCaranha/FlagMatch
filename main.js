@@ -57,6 +57,8 @@ class FlagMemoryScene extends Phaser.Scene {
     }
 
     create() {
+        this.cameras.main.fadeFrom(2000, Phaser.Math.Between(50, 255), Phaser.Math.Between(50, 255), Phaser.Math.Between(50, 255));
+
         this.revealedCards = [];
         this.locked = true; // impede cliques até o "preview" acabar
 
@@ -90,6 +92,10 @@ class FlagMemoryScene extends Phaser.Scene {
         this.createFlags();
 
         this.scale.on("resize", this.handleResize, this);
+
+        this.cameras.main.on(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+            this.scene.restart();
+        });
     }
 
     handleResize(gameSize) {
