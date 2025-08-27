@@ -1,23 +1,45 @@
-# FlagMatch
+FlagMatch
 
-Os links para encontrar as bandeiras são:
+Um jogo da memória com bandeiras de países, construído com Phaser.js.
+O objetivo é combinar pares de bandeiras corretamente até completar o tabuleiro.
 
-https://flagcdn.com/80x60/us.png
-https://flagcdn.com/80x60/br.png
-https://flagcdn.com/80x60/jp.png
-https://flagcdn.com/80x60/de.png
-https://flagcdn.com/80x60/fr.png
-https://flagcdn.com/80x60/gb.png
-https://flagcdn.com/80x60/ca.png
-https://flagcdn.com/80x60/au.png
-https://flagcdn.com/80x60/it.png
-https://flagcdn.com/80x60/es.png
-https://flagcdn.com/80x60/cn.png
-https://flagcdn.com/80x60/in.png
-https://flagcdn.com/80x60/mx.png
-https://flagcdn.com/80x60/ru.png
-https://flagcdn.com/80x60/za.png
 
+## Recursos de Bandeiras
+
+As bandeiras são carregadas a partir do FlagCDN pelo código do país:
+```
+https://flagcdn.com/80x60/{code}.png
+```
+
+## Como Rodar
+
+1. Clone o repositório:
+
+```
+git clone https://github.com/AlexCaranha/FlagMatch.git
+```
+
+2. Instale o http-server globalmente:
+
+```
+npm install -g http-server
+```
+
+3. Instalar as dependências
+
+```
+npm install
+```
+
+4. Rode localmente
+
+```
+npm run start
+```
+
+## Quer jogar?
+
+[![Jogar Agora](https://img.shields.io/badge/Jogar-Flag%20Match-blue)](https://alexcaranha.github.io/FlagMatch)
 
 ## License
 
