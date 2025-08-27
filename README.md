@@ -1,4 +1,4 @@
-FlagMatch
+# FlagMatch
 
 Um jogo da memória com bandeiras de países, construído com Phaser.js.
 O objetivo é combinar pares de bandeiras corretamente até completar o tabuleiro.
