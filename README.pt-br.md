@@ -3,6 +3,14 @@
 Um jogo da memória com bandeiras de países, construído com **Phaser.js**.
 O objetivo é combinar pares de bandeiras corretamente até completar o tabuleiro.
 
+## Controles
+
+O jogo suporta múltiplos métodos de entrada:
+
+- **Mouse** – mova o cursor para selecionar e clique para revelar as cartas;  
+- **Teclado** – use as setas para navegar e Enter/Espaço para selecionar;  
+- **Joystick/Gamepad** – use o direcional ou o analógico para navegar e o botão A para selecionar.  
+
 ## Bandeiras
 
 As bandeiras são carregadas a partir do [FlagCDN](https://flagcdn.com) pelo código ISO do país:

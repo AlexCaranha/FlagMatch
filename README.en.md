@@ -3,6 +3,14 @@
 A memory game with country flags, built with **Phaser.js**.  
 The goal is to correctly match all pairs of flags until the board is completed.
 
+## Controls
+
+The game supports multiple input methods:
+
+- **Mouse** – move the cursor to select and click to reveal cards;
+- **Keyboard** – arrow keys to navigate, Enter/Space to select;
+- **Joystick/Gamepad** – d-pad or analog stick to navigate, A to select.
+
 ## Flags
 
 Flags are loaded from [FlagCDN](https://flagcdn.com) using the country ISO code:
