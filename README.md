@@ -29,7 +29,7 @@ npm install
 3. Rode localmente
 
 ```
-npm run start
+npm run dev
 ```
 
 ## Quer jogar?
