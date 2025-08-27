@@ -29,7 +29,12 @@ class FlagMemoryScene extends Phaser.Scene {
     }
 
     preload() {
+        this.loadSong();
         this.loadFlags();
+    }
+
+    loadSong() {
+        this.load.audio('songs', [ 'assets/audio/Arabesque-in-E-Nr-1.mp3',  ], { stream: true });
     }
 
     loadFlags() {
@@ -57,6 +62,19 @@ class FlagMemoryScene extends Phaser.Scene {
     }
 
     create() {
+        this.sound.pauseOnBlur = false;
+        let index = 0;
+
+        const tocarSequencia = () => {
+            const musica = this.sound.add('songs');
+            musica.setLoop(false);
+            musica.play();
+            musica.once('complete', () => { tocarSequencia(); });
+        };
+
+        tocarSequencia();
+
+
         this.cameras.main.fadeFrom(2000, Phaser.Math.Between(50, 255), Phaser.Math.Between(50, 255), Phaser.Math.Between(50, 255));
 
         this.revealedCards = [];
@@ -178,8 +196,8 @@ class FlagMemoryScene extends Phaser.Scene {
         this.keyEnter = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
         this.keySpace = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
-        // 🔹 Espera 4s e vira todas para trás, liberando o jogo
-        this.time.delayedCall(4000, async () => {
+        // 🔹 Espera 10s e vira todas para trás, liberando o jogo
+        this.time.delayedCall(10000, async () => {
             await Promise.all(this.cards.map(card => this.flip(card, false)));
             this.locked = false; // agora o jogador pode jogar
         });
