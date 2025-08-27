@@ -1,4 +1,4 @@
-# # FlagMatch
+# FlagMatch
 
 Welcome to FlagMatch! Choose your language:
 
