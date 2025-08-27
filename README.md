@@ -20,19 +20,13 @@ git clone https://github.com/AlexCaranha/FlagMatch.git
 cd FlagMatch
 ```
 
-2. Instale o http-server globalmente:
-
-```
-npm install -g http-server
-```
-
-3. Instalar as dependências
+2. Instalar as dependências
 
 ```
 npm install
 ```
 
-4. Rode localmente
+3. Rode localmente
 
 ```
 npm run start
