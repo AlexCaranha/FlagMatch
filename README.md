@@ -17,6 +17,7 @@ https://flagcdn.com/80x60/{code}.png
 
 ```
 git clone https://github.com/AlexCaranha/FlagMatch.git
+cd FlagMatch
 ```
 
 2. Instale o http-server globalmente:
