@@ -1,6 +1,7 @@
 class FlagMemoryScene extends Phaser.Scene {
     constructor() {
         super("FlagMatch");
+        this.musicaTocando = false;
 
         this.titleYMargin = 100;
         this.revealLock = false;
@@ -31,6 +32,8 @@ class FlagMemoryScene extends Phaser.Scene {
     preload() {
         this.loadSong();
         this.loadFlags();
+        this.load.image('botao_musica_on', 'assets/buttons/sound-on.png');
+        this.load.image('botao_musica_off', 'assets/buttons/sound-off.png');
     }
 
     loadSong() {
@@ -63,17 +66,17 @@ class FlagMemoryScene extends Phaser.Scene {
 
     create() {
         this.sound.pauseOnBlur = false;
-        let index = 0;
 
-        const tocarSequencia = () => {
-            const musica = this.sound.add('songs');
-            musica.setLoop(false);
-            musica.play();
-            musica.once('complete', () => { tocarSequencia(); });
-        };
+        this.musica = this.sound.add('songs');
+        this.musica.setLoop(true);
+        this.musica.play();
 
-        tocarSequencia();
+        this.botaoMusica = this.add.image(this.cameras.main.centerX/10, 50, 'botao_musica_on')
+            .setInteractive()
+            .setDisplaySize(50, 50)
+            .on('pointerdown', () => this.toggleMusica());
 
+        this.toggleMusica();
 
         this.cameras.main.fadeFrom(2000, Phaser.Math.Between(50, 255), Phaser.Math.Between(50, 255), Phaser.Math.Between(50, 255));
 
@@ -93,7 +96,7 @@ class FlagMemoryScene extends Phaser.Scene {
                 stroke: "#000000",
                 strokeThickness: 4,
             }
-        ).setOrigin(0.5, );
+        ).setOrigin(0.5);
 
         this.input.on("pointermove", (p) => {
             this.updateFocusRectWithMouse(p.x, p.y);
@@ -114,6 +117,17 @@ class FlagMemoryScene extends Phaser.Scene {
         this.cameras.main.on(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
             this.scene.restart();
         });
+    }
+
+    toggleMusica() {
+        if (this.musicaTocando) {
+            this.musica.pause();
+            this.botaoMusica.setTexture('botao_musica_off');
+        } else {
+            this.musica.resume();
+            this.botaoMusica.setTexture('botao_musica_on');
+        }
+        this.musicaTocando = !this.musicaTocando;
     }
 
     handleResize(gameSize) {
@@ -196,10 +210,9 @@ class FlagMemoryScene extends Phaser.Scene {
         this.keyEnter = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
         this.keySpace = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
-        // 🔹 Espera 10s e vira todas para trás, liberando o jogo
-        this.time.delayedCall(10000, async () => {
+        this.time.delayedCall(5000, async () => {
             await Promise.all(this.cards.map(card => this.flip(card, false)));
-            this.locked = false; // agora o jogador pode jogar
+            this.locked = false;
         });
     }
 
