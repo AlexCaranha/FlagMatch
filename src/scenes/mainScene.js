@@ -1,7 +1,7 @@
 export class FlagMemoryScene extends Phaser.Scene {
     constructor() {
         super("FlagMatch");
-        this.musicaTocando = false;
+        this.songPlaying = false;
 
         this.titleYMargin = 100;
         this.revealLock = false;
@@ -78,9 +78,9 @@ export class FlagMemoryScene extends Phaser.Scene {
         this.botaoMusica = this.add.image(this.cameras.main.centerX/10, 50, 'botao_musica_on')
             .setInteractive()
             .setDisplaySize(50, 50)
-            .on('pointerdown', () => this.toggleMusica());
+            .on('pointerdown', () => this.toggleSong());
 
-        this.toggleMusica();
+        this.toggleSong();
 
         this.cameras.main.fadeFrom(2000, Phaser.Math.Between(50, 255), Phaser.Math.Between(50, 255), Phaser.Math.Between(50, 255));
 
@@ -123,15 +123,15 @@ export class FlagMemoryScene extends Phaser.Scene {
         });
     }
 
-    toggleMusica() {
-        if (this.musicaTocando) {
+    toggleSong() {
+        if (this.songPlaying) {
             this.musica.pause();
             this.botaoMusica.setTexture('botao_musica_off');
         } else {
             this.musica.resume();
             this.botaoMusica.setTexture('botao_musica_on');
         }
-        this.musicaTocando = !this.musicaTocando;
+        this.songPlaying = !this.songPlaying;
     }
 
     handleResize(gameSize) {
