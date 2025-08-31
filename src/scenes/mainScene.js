@@ -1,4 +1,4 @@
-class FlagMemoryScene extends Phaser.Scene {
+export class FlagMemoryScene extends Phaser.Scene {
     constructor() {
         super("FlagMatch");
         this.musicaTocando = false;
@@ -32,6 +32,10 @@ class FlagMemoryScene extends Phaser.Scene {
     preload() {
         this.loadSong();
         this.loadFlags();
+        this.loadButtons();
+    }
+
+    loadButtons() {
         this.load.image('botao_musica_on', 'assets/buttons/sound-on.png');
         this.load.image('botao_musica_off', 'assets/buttons/sound-off.png');
     }
@@ -135,7 +139,6 @@ class FlagMemoryScene extends Phaser.Scene {
 
         this.calculateVariables(width, height);
 
-        // Reposiciona cartas
         for (let i = 0; i < this.cards.length; i++) {
             const col = i % this.gridCols;
             const row = Math.floor(i / this.gridCols);
@@ -150,7 +153,6 @@ class FlagMemoryScene extends Phaser.Scene {
             card.setPosition(x, y);
             card.setSize(this.cardW, this.cardH);
 
-            // Recria face atual (frente/verso)
             card.removeAll(true);
             card.add(this.createCardContainer(card.data.revealed, card));
         }
@@ -189,7 +191,6 @@ class FlagMemoryScene extends Phaser.Scene {
             const card = this.buildCard(data);
             card.index = i;
 
-            // 🔹 Mostra todas como reveladas no início
             card.removeAll(true);
             card.data.revealed = true;
             card.add(this.createFrontContainer(card.data.payload));
@@ -199,8 +200,7 @@ class FlagMemoryScene extends Phaser.Scene {
 
         this.focusRect = this.add.rectangle(
             0, 0,
-            this.cardW + 10,
-            this.cardH + 10
+            this.cardW + 10, this.cardH + 10
         ).setStrokeStyle(3, 0x00ff00).setAlpha(0.9);
 
         this.updateFocusRect();
@@ -251,31 +251,30 @@ class FlagMemoryScene extends Phaser.Scene {
                 const img = new Phaser.GameObjects.Image(this, 0, 0, data.frameKey)
                     .setDisplaySize(this.cardW, this.cardH);
 
-                const border = new Phaser.GameObjects.Rectangle(
-                    this, 0, 0, this.cardW, this.cardH, 0
-                ).setStrokeStyle(2, Phaser.Display.Color.GetColor(255, 255, 0))
-                 .setAlpha(0.3);
+                const border = new Phaser.GameObjects.Rectangle(this, 0, 0, this.cardW, this.cardH, 0)
+                    .setStrokeStyle(2, Phaser.Display.Color.GetColor(255, 255, 0))
+                    .setAlpha(0.3);
 
                 container = new Phaser.GameObjects.Container(this, 0, 0, [border, img]);
                 container.flagImage = img;
-            } else {
-                const rect = new Phaser.GameObjects.Rectangle(
-                    this, 0, 0, this.cardW, this.cardH, 0xffffff
-                ).setStrokeStyle(2, Phaser.Display.Color.GetColor(255, 255, 0))
-                 .setAlpha(0.3);
-
-                const text = new Phaser.GameObjects.Text(this, 0, 0, data.country.name, {
-                    fontFamily: "Arial",
-                    fontSize: "18px",
-                    color: this.cardBorderColor,
-                    fontStyle: "bold",
-                    align: "center",
-                    wordWrap: { width: this.cardW - 20 }
-                }).setOrigin(0.5);
-
-                container = new Phaser.GameObjects.Container(this, 0, 0, [rect, text]);
-                container.flagImage = null;
+                return container;
             }
+
+            const rect = new Phaser.GameObjects.Rectangle(this, 0, 0, this.cardW, this.cardH, 0xffffff)
+                .setStrokeStyle(2, Phaser.Display.Color.GetColor(255, 255, 0))
+                .setAlpha(0.3);
+
+            const text = new Phaser.GameObjects.Text(this, 0, 0, data.country.name, {
+                fontFamily: "Arial",
+                fontSize: "18px",
+                color: this.cardBorderColor,
+                fontStyle: "bold",
+                align: "center",
+                wordWrap: { width: this.cardW - 20 }
+            }).setOrigin(0.5);
+
+            container = new Phaser.GameObjects.Container(this, 0, 0, [rect, text]);
+            container.flagImage = null;
         } catch (err) {
             console.error("Erro durante front:", err?.stack || err);
         }
@@ -304,7 +303,9 @@ class FlagMemoryScene extends Phaser.Scene {
     }
 
     async tryReveal(card) {
-        if (this.revealLock || card.data.matched || card.data.revealed) return;
+        if (this.revealLock || card.data.matched || card.data.revealed) {
+            return;
+        }
 
         this.revealLock = true;
         await this.flip(card, true);
@@ -371,7 +372,9 @@ class FlagMemoryScene extends Phaser.Scene {
     update(time) {
         if (this.input.gamepad.total) {
             const pad = this.input.gamepad.getPad(0);
-            if (this.gamepadMoveOnce(pad, time)) this.updateFocusRect();
+            if (this.gamepadMoveOnce(pad, time)) {
+                this.updateFocusRect();
+            }
 
             if ((pad.A || (pad.buttons[0] && pad.buttons[0].pressed)) &&
                 time - this.lastPadPress > 120) {
@@ -433,17 +436,3 @@ class FlagMemoryScene extends Phaser.Scene {
         }
     }
 }
-
-const config = {
-    type: Phaser.AUTO,
-    backgroundColor: Phaser.Display.Color.GetColor(10, 77, 129),
-    parent: "flag-match",
-    scale: {
-        mode: Phaser.Scale.RESIZE,
-        autoCenter: Phaser.Scale.CENTER_BOTH,
-    },
-    input: { gamepad: true },
-    scene: [FlagMemoryScene]
-};
-
-new Phaser.Game(config);
